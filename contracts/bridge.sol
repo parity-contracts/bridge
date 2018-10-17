@@ -14,6 +14,13 @@ library Helpers {
     }
 }
 
+/// Library used only to test Helpers library via rpc calls
+library HelpersTest {
+    function addressArrayContains(address[] array, address value) public pure returns (bool) {
+        return Helpers.addressArrayContains(array, value);
+    }
+}
+
 /// Part of the bridge that needs to be deployed on the main chain.
 contract Main {
     /// Number of authorities signatures required to relay the message.
