@@ -55,5 +55,41 @@ contract('Main', function(accounts) {
         assert(false, "Contract should fail to deploy");
       }, helpers.ignoreExpectedError)
   })
-})
 
+  it("should create relay message event", function() {
+    var meta;
+    var tx;
+    var requiredSignatures = 1;
+    var authorities = [accounts[0], accounts[1]];
+    let userAccount = accounts[2];
+    let recipientAccount = accounts[3];
+    let value = web3.toWei(1, "ether");
+
+    return newMain({
+      requiredSignatures: requiredSignatures,
+      authorities: authorities,
+    }).then(function(instance) {
+      meta = instance;
+
+      return meta.relayMessage("0x1234", recipientAccount, { from: userAccount });
+    }).then(function(result) {
+      tx = result.tx;
+
+      assert.equal(1, result.logs.length, "Exactly one event should have been created");
+      assert.equal("RelayMessage", result.logs[0].event, "Event name should be RelayMessage");
+      assert.equal(
+        "0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432",
+        result.logs[0].args.messageID,
+        "Event messageID invalid"
+      );
+      assert.equal(userAccount, result.logs[0].args.sender, "Event sender invalid");
+      assert.equal(recipientAccount, result.logs[0].args.recipient, "Event recipient invalid");
+      return meta.messages.call(result.logs[0].args.messageID);
+    }).then(function(message) {
+      assert.equal("0x1234", message);
+      return web3.eth.getTransactionReceipt(tx);
+    }).then(function(transaction) {
+      console.log("estimated gas cost of Main relayMessage function =", transaction.gasUsed);
+    })
+  })
+})
