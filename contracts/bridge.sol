@@ -18,7 +18,6 @@
 
 pragma solidity ^0.4.24;
 
-
 /// General helpers.
 /// `internal` so they get compiled into contracts using them.
 library Helpers {
