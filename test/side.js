@@ -1,20 +1,20 @@
-var Main = artifacts.require("Main");
+var Side = artifacts.require("Side");
 var helpers = require("./helpers/helpers");
 
-function newMain(options) {
-  return Main.new(
+function newSide(options) {
+  return Side.new(
     options.requiredSignatures,
     options.authorities,
   )
 }
 
-contract('Main', function(accounts) {
+contract('Side', function(accounts) {
   it("should deploy contract", function() {
     var meta;
     var authorities = [accounts[0], accounts[1]];
     var requiredSignatures = 1;
 
-    return newMain({
+    return newSide({
       requiredSignatures: requiredSignatures,
       authorities: authorities,
     }).then(function(instance) {
@@ -22,7 +22,7 @@ contract('Main', function(accounts) {
 
       return web3.eth.getTransactionReceipt(instance.transactionHash);
     }).then(function(transaction) {
-      console.log("estimated gas cost of Main deploy =", transaction.gasUsed);
+      console.log("estimated gas cost of Side deploy =", transaction.gasUsed);
 
       return meta.requiredSignatures.call();
     }).then(function(result) {
@@ -36,7 +36,7 @@ contract('Main', function(accounts) {
 
   it("should fail to deploy contract with not enough required signatures", function() {
     var authorities = [accounts[0], accounts[1]];
-    return newMain({
+    return newSide({
       requiredSignatures: 0,
       authorities: authorities,
     })
@@ -47,7 +47,7 @@ contract('Main', function(accounts) {
 
   it("should fail to deploy contract with too many signatures", function() {
     var authorities = [accounts[0], accounts[1]];
-    return newMain({
+    return newSide({
       requiredSignatures: 3,
       authorities: authorities,
     })
