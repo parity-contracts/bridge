@@ -18,6 +18,7 @@
 
 pragma solidity ^0.4.24;
 
+
 /// General helpers.
 /// `internal` so they get compiled into contracts using them.
 library Helpers {
@@ -32,12 +33,14 @@ library Helpers {
     }
 }
 
+
 /// Library used only to test Helpers library via rpc calls
 library HelpersTest {
     function addressArrayContains(address[] array, address value) public pure returns (bool) {
         return Helpers.addressArrayContains(array, value);
     }
 }
+
 
 /// Part of the bridge that needs to be deployed on the main chain.
 contract Main {
@@ -56,8 +59,8 @@ contract Main {
         uint256 requiredSignaturesParam,
         address[] authoritiesParam
     ) public {
-        require(requiredSignaturesParam != 0);
-        require(requiredSignaturesParam <= authoritiesParam.length);
+        require(requiredSignaturesParam != 0, "Can't have zero required signatures");
+        require(requiredSignaturesParam <= authoritiesParam.length, "Can't require more signatures than there're authorities");
         requiredSignatures = requiredSignaturesParam;
         authorities = authoritiesParam;
     }
@@ -90,15 +93,15 @@ contract Side {
         uint256 requiredSignaturesParam,
         address[] authoritiesParam
     ) public {
-        require(requiredSignaturesParam != 0);
-        require(requiredSignaturesParam <= authoritiesParam.length);
+        require(requiredSignaturesParam != 0, "Can't have zero required signatures");
+        require(requiredSignaturesParam <= authoritiesParam.length, "Can't require more signatures than there're authorities");
         requiredSignatures = requiredSignaturesParam;
         authorities = authoritiesParam;
     }
 
     /// Require sender to be an authority.
     modifier onlyAuthority() {
-        require(Helpers.addressArrayContains(authorities, msg.sender));
+        require(Helpers.addressArrayContains(authorities, msg.sender), "msg.sender is not one of the authorities");
         _;
     }
 
@@ -108,7 +111,7 @@ contract Side {
         bytes32 hash = keccak256(abi.encodePacked(data, sender, recipient));
 
         // don't allow authority to confirm deposit twice
-        require(!Helpers.addressArrayContains(messages[hash], msg.sender));
+        require(!Helpers.addressArrayContains(messages[hash], msg.sender), "Can't confirm the same deposit twice");
 
         messages[hash].push(msg.sender);
 

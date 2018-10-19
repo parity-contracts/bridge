@@ -4,7 +4,7 @@
   "description": "",
   "author": "Parity Technologies <admin@parity.io>",
   "homepage": "https://github.com/parity-contracts/bridge",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/parity-contracts/bridge.git"
