@@ -50,8 +50,8 @@ contract Main {
     mapping (bytes32 => bytes) public messages;
 
     /// Event created when new message needs to be passed to the side chain.
-    event RelayMessage(bytes32 message_id, address sender, address recipient);
-    
+    event RelayMessage(bytes32 messageID, address sender, address recipient);
+
     constructor (
         uint256 requiredSignaturesParam,
         address[] authoritiesParam
@@ -61,14 +61,15 @@ contract Main {
         requiredSignatures = requiredSignaturesParam;
         authorities = authoritiesParam;
     }
-    
+
     /// Call this function to relay this message to the side chain.
-    function relay_message(bytes data, address recipient) public {
-        bytes32 message_id = keccak256(data);
-        messages[message_id] = data;
-        emit RelayMessage(message_id, msg.sender, recipient);
+    function relayMessage(bytes data, address recipient) public {
+        bytes32 messageID = keccak256(data);
+        messages[messageID] = data;
+        emit RelayMessage(messageID, msg.sender, recipient);
     }
 }
+
 
 /// Part of the bridge that needs to be deployed on the side chain.
 contract Side {
@@ -82,9 +83,9 @@ contract Side {
     mapping (bytes32 => address[]) public messages;
     /// Main chain addresses mapped to their side chain identities.
     mapping (address => address) public ids;
-    
-    event AcceptedMessage(bytes32 message_id, address sender, address recipient);
-    
+
+    event AcceptedMessage(bytes32 messageID, address sender, address recipient);
+
     constructor (
         uint256 requiredSignaturesParam,
         address[] authoritiesParam
@@ -94,15 +95,15 @@ contract Side {
         requiredSignatures = requiredSignaturesParam;
         authorities = authoritiesParam;
     }
-    
+
     /// Require sender to be an authority.
     modifier onlyAuthority() {
         require(Helpers.addressArrayContains(authorities, msg.sender));
         _;
     }
-    
+
     /// Function used to accept messaged relayed from main chain.
-    function accept_message(bytes data, address sender, address recipient) public onlyAuthority() {
+    function acceptMessage(bytes data, address sender, address recipient) public onlyAuthority() {
         // Protection from misbehaving authority
         bytes32 hash = keccak256(abi.encodePacked(data, sender, recipient));
 
@@ -110,44 +111,46 @@ contract Side {
         require(!Helpers.addressArrayContains(messages[hash], msg.sender));
 
         messages[hash].push(msg.sender);
-        
+
         if (messages[hash].length != requiredSignatures) {
             return;
         }
-        
+
         SideChainIdentity id;
-        address id_address = ids[sender];
-        if (id_address == 0) {
+        address identityAddress = ids[sender];
+        if (identityAddress == 0) {
             id = new SideChainIdentity(sender, this);
             ids[sender] = id;
         } else {
-            id = SideChainIdentity(id_address);
+            id = SideChainIdentity(identityAddress);
         }
-        
+
         id.execute(data, recipient);
         emit AcceptedMessage(hash, sender, recipient);
     }
 }
 
+
 /// Every main chain address has it's own unique side chain identity.
 contract SideChainIdentity {
     address public owner;
     address public side;
-    
+
     constructor (address ownerParam, address sideParam) public {
         owner = ownerParam;
         side = sideParam;
     }
-    
+
     modifier onlyOwnerOrBridge() {
         if (msg.sender == owner || msg.sender == side) {
             _;
         }
     }
-    
+
     /// TODO: take gas into account
     function execute(bytes data, address recipient) public onlyOwnerOrBridge() {
         // assert or require here?
+	// solium-disable-next-line security/no-low-level-calls
         assert(recipient.call(data));
     }
 }
