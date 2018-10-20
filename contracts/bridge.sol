@@ -39,6 +39,14 @@ library HelpersTest {
     }
 }
 
+contract ExecuteTest {
+    bytes public lastData;
+
+    function () public {
+        lastData = msg.data;
+    }
+}
+
 /// Part of the bridge that needs to be deployed on the main chain.
 contract Main {
     /// Number of authorities signatures required to relay the message.
@@ -103,9 +111,9 @@ contract Side {
     }
 
     /// Function used to accept messaged relayed from main chain.
-    function acceptMessage(bytes data, address sender, address recipient) public onlyAuthority() {
+    function acceptMessage(bytes32 transactionHash, bytes data, address sender, address recipient) public onlyAuthority() {
         // Protection from misbehaving authority
-        bytes32 hash = keccak256(abi.encodePacked(data, sender, recipient));
+        bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));
 
         // don't allow authority to confirm deposit twice
         require(!Helpers.addressArrayContains(messages[hash], msg.sender));
@@ -150,7 +158,7 @@ contract SideChainIdentity {
     /// TODO: take gas into account
     function execute(bytes data, address recipient) public onlyOwnerOrBridge() {
         // assert or require here?
-	// solium-disable-next-line security/no-low-level-calls
+        // solium-disable-next-line security/no-low-level-calls
         assert(recipient.call(data));
     }
 }
