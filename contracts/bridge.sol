@@ -136,6 +136,18 @@ contract Side {
         id.execute(data, recipient);
         emit AcceptedMessage(hash, sender, recipient);
     }
+
+    /// Function used to check if authority has already accepted message from main chain.
+    function hasAuthorityAcceptedMessageFromMain(
+        bytes32 transactionHash,
+        bytes data,
+        address sender,
+        address recipient,
+        address authority
+    ) public view returns (bool) {
+        bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));
+        return Helpers.addressArrayContains(messages[hash], authority);
+    }
 }
 
 

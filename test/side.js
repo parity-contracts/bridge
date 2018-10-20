@@ -178,4 +178,25 @@ contract('Side', function(accounts) {
       assert.equal("0x123456", result.substr(0, 8));
     });
   });
+
+  it("should get valid results from hasAuthorityAcceptedMessageFromMain", function () {
+    var meta;
+    var requiredSignatures = 1;
+    var authorities = [accounts[0], accounts[1]];
+    var userAccount = accounts[2];
+    var recipientAccount = accounts[3];
+    var transactionHash = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550963";
+
+    return Side.new(requiredSignatures, authorities).then(function(instance) {
+      meta = instance;
+      return meta.hasAuthorityAcceptedMessageFromMain.call(transactionHash, "0x1234", userAccount, recipientAccount, authorities[0]);
+    }).then(function(result) {
+      assert.equal(false, result);
+      return meta.acceptMessage(transactionHash, "0x1234", userAccount, recipientAccount, { from: authorities[0] });
+    }).then(function(result) {
+      return meta.hasAuthorityAcceptedMessageFromMain.call(transactionHash, "0x1234", userAccount, recipientAccount, authorities[0]);
+    }).then(function(result) {
+      assert.equal(true, result);
+    });
+  });
 })
