@@ -13,12 +13,12 @@
     "url": "https://github.com/parity-contracts/bridge/issues"
   },
   "scripts": {
-    "compile": "npx truffle compile",
-    "migrate": "npx truffle migrate",
-    "test": "npx truffle test --network test",
-    "coverage": "npx solidity-coverage",
-    "lint": "npx solium -d contracts/",
-    "ganache": "npx ganache-cli --port 7545",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "test": "truffle test --network test",
+    "coverage": "solidity-coverage",
+    "lint": "solium -d contracts/",
+    "ganache": "ganache-cli --port 7545",
     "parity": "parity --chain dev --jsonrpc-port 7545 --jsonrpc-apis all"
   },
   "devDependencies": {
