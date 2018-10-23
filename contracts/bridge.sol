@@ -55,28 +55,28 @@ library Helpers {
 
     /// returns whether signatures (whose components are in `vs`, `rs`, `ss`)
     /// contain `requiredSignatures` distinct correct signatures
-    /// where signer is in `allowed_signers`
+    /// where signer is in `allowedSigners`
     /// that signed `message`
-    function hasEnoughValidSignatures(bytes message, uint8[] vs, bytes32[] rs, bytes32[] ss, address[] allowed_signers, uint256 requiredSignatures) internal pure returns (bool) {
+    function hasEnoughValidSignatures(bytes message, uint8[] vs, bytes32[] rs, bytes32[] ss, address[] allowedSigners, uint256 requiredSignatures) internal pure returns (bool) {
         // not enough signatures
         if (vs.length < requiredSignatures) {
             return false;
         }
 
         bytes32 hash = MessageSigning.hashMessage(message);
-        address[] memory encountered_addresses = new address[](allowed_signers.length);
+        address[] memory encounteredAddresses = new address[](allowedSigners.length);
 
         for (uint256 i = 0; i < requiredSignatures; i++) {
-            address recovered_address = ecrecover(hash, vs[i], rs[i], ss[i]);
+            address recoveredAddress = ecrecover(hash, vs[i], rs[i], ss[i]);
             // only signatures by addresses in `addresses` are allowed
-            if (!addressArrayContains(allowed_signers, recovered_address)) {
+            if (!addressArrayContains(allowedSigners, recoveredAddress)) {
                 return false;
             }
             // duplicate signatures are not allowed
-            if (addressArrayContains(encountered_addresses, recovered_address)) {
+            if (addressArrayContains(encounteredAddresses, recoveredAddress)) {
                 return false;
             }
-            encountered_addresses[i] = recovered_address;
+            encounteredAddresses[i] = recoveredAddress;
         }
         return true;
     }
@@ -129,9 +129,11 @@ library MessageSigningTest {
 }
 
 contract ExecuteTest {
+    address public lastSender;
     bytes public lastData;
 
     function () public {
+        lastSender = msg.sender;
         lastData = msg.data;
     }
 }

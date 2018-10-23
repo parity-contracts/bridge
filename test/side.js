@@ -61,7 +61,7 @@ contract('Side', function(accounts) {
   it("should allow a single authority to accept message", function() {
     var executed;
     var meta;
-    var side_id;
+    var sideID;
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var userAccount = accounts[2];
@@ -76,17 +76,18 @@ contract('Side', function(accounts) {
     }).then(function(result) {
       assert.equal(1, result.logs.length);
       assert.equal("AcceptedMessage", result.logs[0].event);
-      assert.equal("0xad1f82689b61e2dc97655a6fe253d885286c3c190d5cb1f26835673c705ce9d1", result.logs[0].args.messageID);
+      var packed = transactionHash + "1234" + userAccount.substr(2) + executed.address.substr(2);
+      assert.equal(web3.sha3(packed, { encoding: 'hex' }), result.logs[0].args.messageID);
       assert.equal(userAccount, result.logs[0].args.sender);
       assert.equal(executed.address, result.logs[0].args.recipient);
       return meta.ids.call(userAccount);
     }).then(function(result) {
       assert.equal("0x409ba3dd291bb5d48d5b4404f5efa207441f6cba", result);
-      side_id = SideChainIdentity.at(result);
-      return side_id.owner.call();
+      sideID = SideChainIdentity.at(result);
+      return sideID.owner.call();
     }).then(function(result) {
       assert.equal(userAccount, result);
-      return side_id.side.call();
+      return sideID.side.call();
     }).then(function(result) {
       assert.equal(meta.address, result);
       return executed.lastData.call();
@@ -152,7 +153,7 @@ contract('Side', function(accounts) {
   it("should reuse side chain identity for two messages", function() {
     var executed;
     var meta;
-    var side_id;
+    var sideID;
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var userAccount = accounts[2];
@@ -170,12 +171,18 @@ contract('Side', function(accounts) {
       return executed.lastData.call();
     }).then(function(result) {
       assert.equal("0x1234", result.substr(0, 6));
+      return executed.lastSender.call();
+    }).then(function(result) {
+      sideID = result;
       return meta.acceptMessage(transactionHash2, "0x123456", userAccount, executed.address, { from: authorities[0] });
     }).then(function(result) {
       assert.equal(1, result.logs.length);
       return executed.lastData.call();
     }).then(function(result) {
       assert.equal("0x123456", result.substr(0, 8));
+      return executed.lastSender.call();
+    }).then(function(result) {
+      assert.equal(sideID, result);
     });
   });
 

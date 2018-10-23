@@ -13,7 +13,6 @@ function sign(address, data) {
         return reject(err);
       } else {
         return resolve(normalizeSignature(result));
-        //return resolve(result);
       }
     })
   })

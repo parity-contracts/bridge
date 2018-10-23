@@ -111,7 +111,7 @@ contract("Helpers", function(accounts) {
     })
   })
 
-  it("`verifySignatures` should pass for multiple signatures", function() {
+  it("`hasEnoughValidSignatures` should pass for multiple signatures", function() {
     var library;
     var signatures = [];
     var requiredSignatures = 3;
@@ -155,7 +155,7 @@ contract("Helpers", function(accounts) {
     })
   })
 
-  it("`verifySignatures` should fail for signature for other message", function() {
+  it("`hasEnoughValidSignatures` should fail for signature for other message", function() {
     var library;
     var signature;
     var requiredSignatures = 1;
@@ -188,7 +188,7 @@ contract("Helpers", function(accounts) {
     })
   })
 
-  it("`verifySignatures` should fail if signer not in addresses", function() {
+  it("`hasEnoughValidSignatures` should fail if signer not in addresses", function() {
     var library;
     var signature;
     var requiredSignatures = 1;
@@ -219,7 +219,7 @@ contract("Helpers", function(accounts) {
     })
   })
 
-  it("`verifySignatures` should fail for not enough signatures", function() {
+  it("`hasEnoughValidSignatures` should fail for not enough signatures", function() {
     var library;
     var signature;
     var requiredSignatures = 2;
@@ -250,7 +250,7 @@ contract("Helpers", function(accounts) {
     })
   })
 
-  it("`verifySignatures` should fail for duplicated signature", function() {
+  it("`hasEnoughValidSignatures` should fail for duplicated signature", function() {
     var library;
     var signature;
     var requiredSignatures = 2;
