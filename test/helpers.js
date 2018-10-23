@@ -88,7 +88,7 @@ contract("Helpers", function(accounts) {
     var recipientAccount = accounts[2];
     var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
-    var message = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice);
+    var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
       library = instance;
@@ -119,7 +119,7 @@ contract("Helpers", function(accounts) {
     var recipientAccount = accounts[3];
     var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
-    var message = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice);
+    var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
       library = instance;
@@ -164,8 +164,8 @@ contract("Helpers", function(accounts) {
     var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var homeGasPrice2 = web3.toBigNumber(100);
-    var message = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice);
-    var message2 = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice2);
+    var message = "0x1234";
+    var message2 = "0x123456";
 
     return Helpers.new().then(function(instance) {
       library = instance;
@@ -196,7 +196,7 @@ contract("Helpers", function(accounts) {
     var recipientAccount = accounts[2];
     var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
-    var message = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice);
+    var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
       library = instance;
@@ -227,7 +227,7 @@ contract("Helpers", function(accounts) {
     var recipientAccount = accounts[2];
     var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
-    var message = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice);
+    var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
       library = instance;
@@ -258,7 +258,7 @@ contract("Helpers", function(accounts) {
     var recipientAccount = accounts[2];
     var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
-    var message = helpers.createMessage(recipientAccount, value, "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80", homeGasPrice);
+    var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
       library = instance;

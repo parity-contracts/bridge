@@ -120,7 +120,6 @@ library MessageSigning {
     }
 }
 
-
 /// Library used only to test MessageSigning library via rpc calls
 library MessageSigningTest {
     function recoverAddressFromSignedMessage(bytes signature, bytes message) public pure returns (address) {
@@ -169,9 +168,19 @@ contract Main {
     }
 }
 
-
 /// Part of the bridge that needs to be deployed on the side chain.
 contract Side {
+    /// Definition of the structure that holds all authorites signatures
+    /// before relaying them to the `Main`
+    struct SignaturesCollection {
+        /// Signed message.
+        bytes message;
+        /// Authorities who signed the message.
+        address[] authorities;
+        /// Signatures
+        bytes[] signatures;
+    }
+
     /// Number of authorities signatures required to relay the message.
     /// Must be less than a number of authorities.
     uint256 public requiredSignatures;
@@ -182,8 +191,14 @@ contract Side {
     mapping (bytes32 => address[]) public messages;
     /// Main chain addresses mapped to their side chain identities.
     mapping (address => address) public ids;
+    /// Messages that are being relayed to the main network and authorities who
+    /// already confirmed them.
+    mapping (bytes32 => SignaturesCollection) signatures;
 
+	/// Message accepted from the main chain.
     event AcceptedMessage(bytes32 messageID, address sender, address recipient);
+    /// Message which should be relayed to the main chain.
+	event SignedMessage(address indexed authorityResponsibleForRelay, bytes32 messageHash);
 
     constructor (
         uint256 requiredSignaturesParam,
@@ -228,6 +243,30 @@ contract Side {
         emit AcceptedMessage(hash, sender, recipient);
     }
 
+    /// Message is a message that should be relayed to main chain once authorities sign it.
+    ///
+    /// message contains:
+    /// side transaction hash (bytes32)
+    /// sender (bytes20)
+    /// recipient (bytes20)
+    /// message (bytes)
+    function submitSignedMessage(bytes signature, bytes message) public onlyAuthority() {
+        // ensure that `signature` is really `message` signed by `msg.sender`
+        require(msg.sender == MessageSigning.recoverAddressFromSignedMessage(signature, message));
+
+        bytes32 hash = keccak256(message);
+
+        // each authority can only provide one signature per message
+        require(!Helpers.addressArrayContains(signatures[hash].authorities, msg.sender));
+        signatures[hash].message = message;
+        signatures[hash].authorities.push(msg.sender);
+        signatures[hash].signatures.push(signature);
+
+        if (signatures[hash].authorities.length == requiredSignatures) {
+            emit SignedMessage(msg.sender, hash);
+        }
+    }
+
     /// Function used to check if authority has already accepted message from main chain.
     function hasAuthorityAcceptedMessageFromMain(
         bytes32 transactionHash,
@@ -238,6 +277,22 @@ contract Side {
     ) public view returns (bool) {
         bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));
         return Helpers.addressArrayContains(messages[hash], authority);
+    }
+
+    /// Function used to check if authority has already signed the message.
+    function hasAuthoritySignedMessage(address authority, bytes message) public view returns (bool) {
+        bytes32 messageHash = keccak256(message);
+        return Helpers.addressArrayContains(signatures[messageHash].authorities, authority);
+    }
+
+    /// Get signature
+    function signature(bytes32 messageHash, uint256 index) public view returns (bytes) {
+        return signatures[messageHash].signatures[index];
+    }
+
+    /// Get message
+    function message(bytes32 message_hash) public view returns (bytes) {
+        return signatures[message_hash].message;
     }
 }
 

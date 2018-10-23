@@ -84,27 +84,21 @@ function getBalances(addresses) {
 module.exports.getBalances = getBalances;
 
 // returns hex string of the bytes of the message
-// composed from `recipient`, `value` and `transactionHash`
+// composed from `transactionHash`, `sender`, `recipient` and `message`
 // that is relayed from `foreign` to `home` on withdraw
-function createMessage(recipient, value, transactionHash, homeGasPrice) {
-  web3._extend.utils.isBigNumber(value);
-  recipient = strip0x(recipient);
-  assert.equal(recipient.length, 20 * 2);
-
-  var value = strip0x(bigNumberToPaddedBytes32(value));
-  assert.equal(value.length, 64);
-
+function createMessage(transactionHash, sender, recipient, message) {
   transactionHash = strip0x(transactionHash);
   assert.equal(transactionHash.length, 32 * 2);
 
-  web3._extend.utils.isBigNumber(homeGasPrice);
-  homeGasPrice = strip0x(bigNumberToPaddedBytes32(homeGasPrice));
-  assert.equal(homeGasPrice.length, 64);
+  sender = strip0x(sender);
+  assert.equal(sender.length, 20 * 2);
 
-  var message = "0x" + recipient + value + transactionHash + homeGasPrice;
-  var expectedMessageLength = (20 + 32 + 32 + 32) * 2 + 2;
-  assert.equal(message.length, expectedMessageLength);
-  return message;
+  recipient = strip0x(recipient);
+  assert.equal(recipient.length, 20 * 2);
+
+  message = strip0x(message);
+
+  return "0x" + transactionHash + sender + recipient + message;
 }
 
 module.exports.createMessage = createMessage;
