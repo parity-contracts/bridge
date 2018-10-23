@@ -96,7 +96,7 @@ contract('Side', function(accounts) {
     });
   });
 
-  it("should not allow random account to accept message", function() {
+  it("should not allow accept message from non-authority account", function() {
     var meta;
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
@@ -131,7 +131,7 @@ contract('Side', function(accounts) {
     }, helpers.ignoreExpectedError);
   });
 
-  it("should two authorities to accept the message", function() {
+  it("should require two authorities to accept the message", function() {
     var meta;
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
