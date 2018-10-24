@@ -1,0 +1,31 @@
+{
+  "name": "parity-bridge",
+  "version": "0.1.0",
+  "description": "",
+  "author": "Parity Technologies <admin@parity.io>",
+  "homepage": "https://github.com/parity-contracts/bridge",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parity-contracts/bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/parity-contracts/bridge/issues"
+  },
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "test": "truffle test --network test",
+    "coverage": "solidity-coverage",
+    "lint": "solium -d contracts/",
+    "ganache": "ganache-cli --port 7545",
+    "parity": "parity --chain dev --jsonrpc-port 7545 --jsonrpc-apis all"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.0",
+    "ganache-cli": "^6.1.0",
+    "solidity-coverage": "^0.5.0",
+    "solium": "^1.1.6",
+    "truffle": "^4.1.5"
+  }
+}
