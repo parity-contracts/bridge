@@ -86,7 +86,6 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var message = "0x1234";
 
@@ -117,7 +116,6 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 3;
     var authorities = [accounts[0], accounts[1], accounts[2]];
     var recipientAccount = accounts[3];
-    var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var message = "0x1234";
 
@@ -161,7 +159,6 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var homeGasPrice2 = web3.toBigNumber(100);
     var message = "0x1234";
@@ -194,7 +191,6 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var message = "0x1234";
 
@@ -225,7 +221,6 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var message = "0x1234";
 
@@ -256,7 +251,6 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var value = web3.toBigNumber(web3.toWei(1, "ether"));
     var homeGasPrice = web3.toBigNumber(10000);
     var message = "0x1234";
 
