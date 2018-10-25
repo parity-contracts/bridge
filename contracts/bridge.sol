@@ -58,7 +58,15 @@ library Helpers {
     /// contain `requiredSignatures` distinct correct signatures
     /// where signer is in `allowedSigners`
     /// that signed `message`
-    function hasEnoughValidSignatures(bytes message, uint8[] vs, bytes32[] rs, bytes32[] ss, address[] allowedSigners, uint256 requiredSignatures) internal pure returns (bool) {
+    function hasEnoughValidSignatures(
+        bytes message,
+        uint8[] vs,
+        bytes32[] rs,
+        bytes32[] ss,
+        address[] allowedSigners,
+        uint256 requiredSignatures
+    ) internal pure returns (bool)
+    {
         // not enough signatures
         if (vs.length < requiredSignatures) {
             return false;
@@ -94,16 +102,25 @@ library HelpersTest {
         return Helpers.uintToString(inputValue);
     }
 
-    function hasEnoughValidSignatures(bytes message, uint8[] vs, bytes32[] rs, bytes32[] ss, address[] addresses, uint256 requiredSignatures) public pure returns (bool) {
+    function hasEnoughValidSignatures(
+        bytes message,
+        uint8[] vs,
+        bytes32[] rs,
+        bytes32[] ss,
+        address[] addresses,
+        uint256 requiredSignatures
+    ) public pure returns (bool)
+    {
         return Helpers.hasEnoughValidSignatures(message, vs, rs, ss, addresses, requiredSignatures);
     }
 }
+
 
 // helpers for message signing.
 // `internal` so they get compiled into contracts using them.
 library MessageSigning {
     function recoverAddressFromSignedMessage(bytes signature, bytes message) internal pure returns (address) {
-        require(signature.length == 65);
+        require(signature.length == 65, "Signature must be 65 bytes long.");
         bytes32 r;
         bytes32 s;
         bytes1 v;
@@ -122,12 +139,14 @@ library MessageSigning {
     }
 }
 
+
 /// Library used only to test MessageSigning library via rpc calls
 library MessageSigningTest {
     function recoverAddressFromSignedMessage(bytes signature, bytes message) public pure returns (address) {
         return MessageSigning.recoverAddressFromSignedMessage(signature, message);
     }
 }
+
 
 contract ExecuteTest {
     address public lastSender;
@@ -171,6 +190,7 @@ contract Main {
     }
 }
 
+
 /// Part of the bridge that needs to be deployed on the side chain.
 contract Side {
     /// Definition of the structure that holds all authorites signatures
@@ -198,10 +218,10 @@ contract Side {
     /// already confirmed them.
     mapping (bytes32 => SignaturesCollection) signatures;
 
-	/// Message accepted from the main chain.
+    /// Message accepted from the main chain.
     event AcceptedMessage(bytes32 messageID, address sender, address recipient);
     /// Message which should be relayed to the main chain.
-	event SignedMessage(address indexed authorityResponsibleForRelay, bytes32 messageHash);
+    event SignedMessage(address indexed authorityResponsibleForRelay, bytes32 messageHash);
 
     constructor (
         uint256 requiredSignaturesParam,
@@ -220,7 +240,13 @@ contract Side {
     }
 
     /// Function used to accept messaged relayed from main chain.
-    function acceptMessage(bytes32 transactionHash, bytes data, address sender, address recipient) public onlyAuthority() {
+    function acceptMessage(
+        bytes32 transactionHash,
+        bytes data,
+        address sender,
+        address recipient
+    ) public onlyAuthority()
+    {
         // Protection from misbehaving authority
         bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));
 
@@ -255,12 +281,18 @@ contract Side {
     /// message (bytes)
     function submitSignedMessage(bytes signature, bytes message) public onlyAuthority() {
         // ensure that `signature` is really `message` signed by `msg.sender`
-        require(msg.sender == MessageSigning.recoverAddressFromSignedMessage(signature, message));
+        require(
+            msg.sender == MessageSigning.recoverAddressFromSignedMessage(signature, message),
+            "Message must be signed by msg.sender."
+        );
 
         bytes32 hash = keccak256(message);
 
         // each authority can only provide one signature per message
-        require(!Helpers.addressArrayContains(signatures[hash].authorities, msg.sender));
+        require(
+            !Helpers.addressArrayContains(signatures[hash].authorities, msg.sender),
+            "Only authority can submit signed message."
+        );
         signatures[hash].message = message;
         signatures[hash].authorities.push(msg.sender);
         signatures[hash].signatures.push(signature);
@@ -277,7 +309,8 @@ contract Side {
         address sender,
         address recipient,
         address authority
-    ) public view returns (bool) {
+    ) public view returns (bool)
+    {
         bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));
         return Helpers.addressArrayContains(messages[hash], authority);
     }
@@ -294,10 +327,11 @@ contract Side {
     }
 
     /// Get message
-    function message(bytes32 message_hash) public view returns (bytes) {
-        return signatures[message_hash].message;
+    function message(bytes32 messageHash) public view returns (bytes) {
+        return signatures[messageHash].message;
     }
 }
+
 
 /// Every main chain address has it's own unique side chain identity.
 contract SideChainIdentity {
