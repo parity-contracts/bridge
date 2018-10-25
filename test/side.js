@@ -82,7 +82,6 @@ contract('Side', function(accounts) {
       assert.equal(executed.address, result.logs[0].args.recipient);
       return meta.ids.call(userAccount);
     }).then(function(result) {
-      assert.equal("0x409ba3dd291bb5d48d5b4404f5efa207441f6cba", result);
       sideID = SideChainIdentity.at(result);
       return sideID.owner.call();
     }).then(function(result) {

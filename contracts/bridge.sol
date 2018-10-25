@@ -93,7 +93,7 @@ library Helpers {
 
 
 /// Library used only to test Helpers library via rpc calls
-library HelpersTest {
+contract HelpersTest {
     function addressArrayContains(address[] array, address value) public pure returns (bool) {
         return Helpers.addressArrayContains(array, value);
     }
@@ -141,7 +141,7 @@ library MessageSigning {
 
 
 /// Library used only to test MessageSigning library via rpc calls
-library MessageSigningTest {
+contract MessageSigningTest {
     function recoverAddressFromSignedMessage(bytes signature, bytes message) public pure returns (address) {
         return MessageSigning.recoverAddressFromSignedMessage(signature, message);
     }
