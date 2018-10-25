@@ -1,6 +1,5 @@
 var Side = artifacts.require("Side");
-var SideChainIdentity = artifacts.require("SideChainIdentity");
-var ExecuteTest = artifacts.require("ExecuteTest");
+var RecipientTest = artifacts.require("RecipientTest");
 var helpers = require("./helpers/helpers");
 
 function newSide(options) {
@@ -67,7 +66,7 @@ contract('Side', function(accounts) {
     var userAccount = accounts[2];
     var transactionHash = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550963";
 
-    return ExecuteTest.new().then(function(result) {
+    return RecipientTest.new().then(function(result) {
       executed = result;
       return Side.new(requiredSignatures, authorities);
     }).then(function(instance) {
@@ -80,19 +79,13 @@ contract('Side', function(accounts) {
       assert.equal(web3.sha3(packed, { encoding: 'hex' }), result.logs[0].args.messageID);
       assert.equal(userAccount, result.logs[0].args.sender);
       assert.equal(executed.address, result.logs[0].args.recipient);
-      return meta.ids.call(userAccount);
-    }).then(function(result) {
-      sideID = SideChainIdentity.at(result);
-      return sideID.owner.call();
-    }).then(function(result) {
-      assert.equal(userAccount, result);
-      return sideID.side.call();
-    }).then(function(result) {
-      assert.equal(meta.address, result);
       return executed.lastData.call();
     }).then(function(result) {
       assert.equal("0x1234", result.substr(0, 6));
-    });
+      return executed.lastSender.call();
+    }).then(function(result) {
+      assert.equal(userAccount, result);
+    })
   });
 
   it("should not allow accept message from non-authority account", function() {
@@ -135,15 +128,17 @@ contract('Side', function(accounts) {
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
     var userAccount = accounts[2];
-    var recipientAccount = accounts[3];
     var transactionHash = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550963";
 
-    return Side.new(requiredSignatures, authorities).then(function(instance) {
+    return RecipientTest.new().then(function(result) {
+      executed = result;
+      return Side.new(requiredSignatures, authorities)
+    }).then(function(instance) {
       meta = instance;
-      return meta.acceptMessage(transactionHash, "0x1234", userAccount, recipientAccount, { from: authorities[0] });
+      return meta.acceptMessage(transactionHash, "0x1234", userAccount, executed.address, { from: authorities[0] });
     }).then(function(result) {
       assert.equal(0, result.logs.length);
-      return meta.acceptMessage(transactionHash, "0x1234", userAccount, recipientAccount, { from: authorities[1] });
+      return meta.acceptMessage(transactionHash, "0x1234", userAccount, executed.address, { from: authorities[1] });
     }).then(function(result) {
       assert.equal(1, result.logs.length);
     });
@@ -159,7 +154,7 @@ contract('Side', function(accounts) {
     var transactionHash = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550963";
     var transactionHash2 = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550964";
 
-    return ExecuteTest.new().then(function(result) {
+    return RecipientTest.new().then(function(result) {
       executed = result;
       return Side.new(requiredSignatures, authorities);
     }).then(function(instance) {
@@ -190,17 +185,19 @@ contract('Side', function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var userAccount = accounts[2];
-    var recipientAccount = accounts[3];
     var transactionHash = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550963";
 
-    return Side.new(requiredSignatures, authorities).then(function(instance) {
+    return RecipientTest.new().then(function(result) {
+      executed = result;
+      return Side.new(requiredSignatures, authorities)
+    }).then(function(instance) {
       meta = instance;
-      return meta.hasAuthorityAcceptedMessageFromMain.call(transactionHash, "0x1234", userAccount, recipientAccount, authorities[0]);
+      return meta.hasAuthorityAcceptedMessageFromMain.call(transactionHash, "0x1234", userAccount, executed.address, authorities[0]);
     }).then(function(result) {
       assert.equal(false, result);
-      return meta.acceptMessage(transactionHash, "0x1234", userAccount, recipientAccount, { from: authorities[0] });
+      return meta.acceptMessage(transactionHash, "0x1234", userAccount, executed.address, { from: authorities[0] });
     }).then(function(result) {
-      return meta.hasAuthorityAcceptedMessageFromMain.call(transactionHash, "0x1234", userAccount, recipientAccount, authorities[0]);
+      return meta.hasAuthorityAcceptedMessageFromMain.call(transactionHash, "0x1234", userAccount, executed.address, authorities[0]);
     }).then(function(result) {
       assert.equal(true, result);
     });

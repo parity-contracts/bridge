@@ -84,7 +84,7 @@ contract('Main', function(accounts) {
       );
       assert.equal(userAccount, result.logs[0].args.sender, "Event sender invalid");
       assert.equal(recipientAccount, result.logs[0].args.recipient, "Event recipient invalid");
-      return meta.messages.call(result.logs[0].args.messageID);
+      return meta.relayedMessages.call(result.logs[0].args.messageID);
     }).then(function(message) {
       assert.equal("0x1234", message);
       return web3.eth.getTransactionReceipt(tx);
