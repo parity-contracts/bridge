@@ -215,6 +215,7 @@ contract Main is Bridge {
             "Invalid signatures."
         );
         require(!acceptedMessages[hash], "Message already accepted.");
+        acceptedMessages[hash] = true;
 
         // everything is fine, accept the message
         BridgeRecipient bridgeRecipient = BridgeRecipient(recipient);
