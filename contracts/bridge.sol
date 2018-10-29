@@ -207,7 +207,7 @@ contract Main is Bridge {
         address recipient
     ) public
     {
-        bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));
+        bytes32 hash = keccak256(abi.encodePacked(transactionHash, keccak256(data), sender, recipient));
         /// TODO: fix helpers ABI, cause this is redundant
         bytes memory hashAsBytes = abi.encodePacked(hash);
         require(
@@ -312,7 +312,7 @@ contract Side is Bridge {
     ///
     /// message contains:
     /// side transaction hash (bytes32)
-    /// data (bytes)
+    /// message_id (bytes32)
     /// sender (bytes20)
     /// recipient (bytes20)
     function submitSignedMessage(bytes signature, bytes message) public onlyAuthority() {

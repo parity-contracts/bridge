@@ -108,7 +108,7 @@ contract('Main', function(accounts) {
     return RecipientTest.new().then(function(result) {
       executed = result;
 
-      message = txHash + data.substr(2) + sender.substr(2) + executed.address.substr(2);
+      message = txHash + web3.sha3(data, { encoding: 'hex' }).substr(2) + sender.substr(2) + executed.address.substr(2);
       hash = web3.sha3(message, { encoding: 'hex' });
 
       return newMain({
