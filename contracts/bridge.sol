@@ -222,6 +222,15 @@ contract Main is Bridge {
         bridgeRecipient.acceptMessage(data, sender);
         emit AcceptedMessage(hash, sender, recipient);
     }
+
+    /// Called by the bridge node processes on startup
+    /// to determine early whether the address pointing to the main
+    /// bridge contract is misconfigured.
+    /// so we can provide a helpful error message instead of the very
+    /// unhelpful errors encountered otherwise.
+    function isMainBridgeContract() public pure returns (bool) {
+        return true;
+    }
 }
 
 
@@ -365,6 +374,15 @@ contract Side is Bridge {
     /// Get message
     function message(bytes32 messageHash) public view returns (bytes) {
         return signatures[messageHash].message;
+    }
+
+    // Called by the bridge node processes on startup
+    // to determine early whether the address pointing to the side
+    // bridge contract is misconfigured.
+    // so we can provide a helpful error message instead of the
+    // very unhelpful errors encountered otherwise.
+    function isSideBridgeContract() public pure returns (bool) {
+        return true;
     }
 }
 
