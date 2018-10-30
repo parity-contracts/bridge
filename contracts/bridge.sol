@@ -81,11 +81,6 @@ library Helpers {
         uint256 requiredSignatures
     ) internal pure returns (bool)
     {
-        // not enough signatures
-        if (vs.length < requiredSignatures) {
-            return false;
-        }
-
         bytes32 hash = MessageSigning.hashMessage(message);
         address[] memory encounteredAddresses = new address[](allowedSigners.length);
 
@@ -205,7 +200,7 @@ contract Main is Bridge {
         bytes data,
         address sender,
         address recipient
-    ) public
+    ) external
     {
         bytes32 hash = keccak256(abi.encodePacked(transactionHash, keccak256(data), sender, recipient));
         /// TODO: fix helpers ABI, cause this is redundant
@@ -291,13 +286,13 @@ contract Side is Bridge {
         emit RelayMessage(messageID, msg.sender, recipient);
     }
 
-    /// Function used to accept messaged relayed from main chain.
+    /// Function used to accept messages relayed from main chain.
     function acceptMessage(
         bytes32 transactionHash,
         bytes data,
         address sender,
         address recipient
-    ) public onlyAuthority()
+    ) external onlyAuthority()
     {
         // Protection from misbehaving authority
         bytes32 hash = keccak256(abi.encodePacked(transactionHash, data, sender, recipient));

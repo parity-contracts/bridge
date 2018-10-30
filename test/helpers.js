@@ -239,10 +239,10 @@ contract("Helpers", function(accounts) {
         [vrs.s],
         authorities,
         requiredSignatures
-      ).then(function(result) {
-        assert.equal(result, false, "should return false");
-      })
-    })
+      )
+    }).then(function() {
+      assert(false, "should fail");
+    }, helpers.ignoreExpectedError)
   })
 
   it("`hasEnoughValidSignatures` should fail for duplicated signature", function() {
