@@ -1,4 +1,5 @@
 var Main = artifacts.require("Main");
+var RecipientTest = artifacts.require("RecipientTest");
 var helpers = require("./helpers/helpers");
 
 function newMain(options) {
@@ -84,12 +85,60 @@ contract('Main', function(accounts) {
       );
       assert.equal(userAccount, result.logs[0].args.sender, "Event sender invalid");
       assert.equal(recipientAccount, result.logs[0].args.recipient, "Event recipient invalid");
-      return meta.messages.call(result.logs[0].args.messageID);
+      return meta.relayedMessages.call(result.logs[0].args.messageID);
     }).then(function(message) {
       assert.equal("0x1234", message);
       return web3.eth.getTransactionReceipt(tx);
     }).then(function(transaction) {
       console.log("estimated gas cost of Main relayMessage function =", transaction.gasUsed);
     })
-  })
+  });
+
+  it("should accept signed message", function () {
+    var executed;
+    var meta;
+    var authorities = [accounts[0], accounts[1]];
+    var requiredSignatures = 1;
+    var txHash = "0x20393f23b0b9b5f12d67e49d6541d4daf085c7b6a402f67e6e98dc81e0550963";
+    var data = "0x1234";
+    var sender = accounts[2];
+    var message;
+    var hash;
+
+    return RecipientTest.new().then(function(result) {
+      executed = result;
+
+      message = txHash + web3.sha3(data, { encoding: 'hex' }).substr(2) + sender.substr(2) + executed.address.substr(2);
+      hash = web3.sha3(message, { encoding: 'hex' });
+
+      return newMain({
+        requiredSignatures: requiredSignatures,
+        authorities: authorities,
+      });
+    }).then(function(result) {
+      meta = result;
+      return helpers.sign(authorities[0], hash);
+    }).then(function(result) {
+      var vrs = helpers.signatureToVRS(result);
+
+      return meta.acceptMessage(
+        [vrs.v],
+        [vrs.r],
+        [vrs.s],
+        txHash,
+        data,
+        sender,
+        executed.address,
+        {
+          from: authorities[0],
+        }
+      );
+    }).then(function(result) {
+      assert.equal(1, result.logs.length);
+      assert.equal("AcceptedMessage", result.logs[0].event);
+      assert.equal(hash, result.logs[0].args.messageID);
+      assert.equal(sender, result.logs[0].args.sender);
+      assert.equal(executed.address, result.logs[0].args.recipient);
+    });
+  });
 })
