@@ -117,7 +117,7 @@ contract('Main', function(accounts) {
       });
     }).then(function(result) {
       meta = result;
-      return helpers.sign(authorities[0], hash);
+      return helpers.sign(authorities[0], message);
     }).then(function(result) {
       var vrs = helpers.signatureToVRS(result);
 

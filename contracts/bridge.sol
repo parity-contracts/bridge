@@ -202,11 +202,10 @@ contract Main is Bridge {
         address recipient
     ) external
     {
-        bytes32 hash = keccak256(abi.encodePacked(transactionHash, keccak256(data), sender, recipient));
-        /// TODO: fix helpers ABI, cause this is redundant
-        bytes memory hashAsBytes = abi.encodePacked(hash);
+        bytes memory asBytes = abi.encodePacked(transactionHash, keccak256(data), sender, recipient);
+        bytes32 hash = keccak256(asBytes);
         require(
-            Helpers.hasEnoughValidSignatures(hashAsBytes, vs, rs, ss, authorities, requiredSignatures),
+            Helpers.hasEnoughValidSignatures(asBytes, vs, rs, ss, authorities, requiredSignatures),
             "Invalid signatures."
         );
         require(!acceptedMessages[hash], "Message already accepted.");
