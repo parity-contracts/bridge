@@ -8,7 +8,7 @@ module.exports.ignoreExpectedError = ignoreExpectedError;
 // `data` signed with the key of `address`
 function sign(address, data) {
   return new Promise(function(resolve, reject) {
-    web3.eth.sign(address, data, function(err, result) {
+    web3.eth.sign(data, address, function(err, result) {
       if (err !== null) {
         return reject(err);
       } else {

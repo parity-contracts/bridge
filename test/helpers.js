@@ -74,7 +74,7 @@ contract("Helpers", function(accounts) {
     }).then(function(result) {
       console.log("estimated gas cost of Helpers.uintToString(12345678) =", result);
 
-      return library.uintToString.call(web3.toBigNumber("131242344353464564564574574567456"));
+      return library.uintToString.call(web3.utils.toBN("131242344353464564564574574567456"));
     }).then(function(result) {
       assert.equal(result, "131242344353464564564574574567456");
     })
@@ -86,7 +86,7 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var homeGasPrice = web3.toBigNumber(10000);
+    var homeGasPrice = web3.utils.toBN(10000);
     var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
@@ -116,7 +116,7 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 3;
     var authorities = [accounts[0], accounts[1], accounts[2]];
     var recipientAccount = accounts[3];
-    var homeGasPrice = web3.toBigNumber(10000);
+    var homeGasPrice = web3.utils.toBN(10000);
     var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
@@ -159,8 +159,8 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var homeGasPrice = web3.toBigNumber(10000);
-    var homeGasPrice2 = web3.toBigNumber(100);
+    var homeGasPrice = web3.utils.toBN(10000);
+    var homeGasPrice2 = web3.utils.toBN(100);
     var message = "0x1234";
     var message2 = "0x123456";
 
@@ -191,7 +191,7 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 1;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var homeGasPrice = web3.toBigNumber(10000);
+    var homeGasPrice = web3.utils.toBN(10000);
     var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
@@ -221,7 +221,7 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var homeGasPrice = web3.toBigNumber(10000);
+    var homeGasPrice = web3.utils.toBN(10000);
     var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
@@ -251,7 +251,7 @@ contract("Helpers", function(accounts) {
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
-    var homeGasPrice = web3.toBigNumber(10000);
+    var homeGasPrice = web3.utils.toBN(10000);
     var message = "0x1234";
 
     return Helpers.new().then(function(instance) {
