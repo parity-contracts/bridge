@@ -16,20 +16,20 @@
 //
 // https://github.com/parity-contracts/bridge
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 
 /// An interface of the bridge contract on both chains. Call this method to relay
 /// the message to the other chain. `recipient` is an anddress of `BridgeRecipient`
 /// contract on the other chain.
 interface Bridge {
-    function relayMessage(bytes data, address recipient) external;
+    function relayMessage(bytes calldata data, address recipient) external;
 }
 
 
 /// Interface that needs to be implemented by message receipient.
 interface BridgeRecipient {
-    function acceptMessage(bytes data, address sender) external;
+    function acceptMessage(bytes calldata data, address sender) external;
 }
 
 
@@ -37,7 +37,7 @@ interface BridgeRecipient {
 /// `internal` so they get compiled into contracts using them.
 library Helpers {
     /// returns whether `array` contains `value`.
-    function addressArrayContains(address[] array, address value) internal pure returns (bool) {
+    function addressArrayContains(address[] memory array, address value) internal pure returns (bool) {
         for (uint256 i = 0; i < array.length; i++) {
             if (array[i] == value) {
                 return true;
@@ -48,7 +48,7 @@ library Helpers {
 
     // returns the digits of `inputValue` as a string.
     // example: `uintToString(12345678)` returns `"12345678"`
-    function uintToString(uint256 inputValue) internal pure returns (string) {
+    function uintToString(uint256 inputValue) internal pure returns (string memory) {
         // figure out the length of the resulting string
         uint256 length = 0;
         uint256 currentValue = inputValue;
@@ -62,7 +62,7 @@ library Helpers {
         uint256 i = length - 1;
         currentValue = inputValue;
         do {
-            result[i--] = byte(48 + currentValue % 10);
+            result[i--] = byte(uint8(48 + currentValue % 10));
             currentValue /= 10;
         } while (currentValue != 0);
         return string(result);
@@ -73,11 +73,11 @@ library Helpers {
     /// where signer is in `allowedSigners`
     /// that signed `message`
     function hasEnoughValidSignatures(
-        bytes message,
-        uint8[] vs,
-        bytes32[] rs,
-        bytes32[] ss,
-        address[] allowedSigners,
+        bytes memory message,
+        uint8[] memory vs,
+        bytes32[] memory rs,
+        bytes32[] memory ss,
+        address[] memory allowedSigners,
         uint256 requiredSignatures
     ) internal pure returns (bool)
     {
@@ -103,20 +103,20 @@ library Helpers {
 
 /// Library used only to test Helpers library via rpc calls
 contract HelpersTest {
-    function addressArrayContains(address[] array, address value) public pure returns (bool) {
+    function addressArrayContains(address[] memory array, address value) public pure returns (bool) {
         return Helpers.addressArrayContains(array, value);
     }
 
-    function uintToString(uint256 inputValue) public pure returns (string str) {
+    function uintToString(uint256 inputValue) public pure returns (string memory str) {
         return Helpers.uintToString(inputValue);
     }
 
     function hasEnoughValidSignatures(
-        bytes message,
-        uint8[] vs,
-        bytes32[] rs,
-        bytes32[] ss,
-        address[] addresses,
+        bytes memory message,
+        uint8[] memory vs,
+        bytes32[] memory rs,
+        bytes32[] memory ss,
+        address[] memory addresses,
         uint256 requiredSignatures
     ) public pure returns (bool)
     {
@@ -128,7 +128,7 @@ contract HelpersTest {
 // helpers for message signing.
 // `internal` so they get compiled into contracts using them.
 library MessageSigning {
-    function recoverAddressFromSignedMessage(bytes signature, bytes message) internal pure returns (address) {
+    function recoverAddressFromSignedMessage(bytes memory signature, bytes memory message) internal pure returns (address) {
         require(signature.length == 65, "Signature must be 65 bytes long.");
         bytes32 r;
         bytes32 s;
@@ -142,7 +142,7 @@ library MessageSigning {
         return ecrecover(hashMessage(message), uint8(v), r, s);
     }
 
-    function hashMessage(bytes message) internal pure returns (bytes32) {
+    function hashMessage(bytes memory message) internal pure returns (bytes32) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n";
         return keccak256(abi.encodePacked(prefix, Helpers.uintToString(message.length), message));
     }
@@ -151,7 +151,7 @@ library MessageSigning {
 
 /// Library used only to test MessageSigning library via rpc calls
 contract MessageSigningTest {
-    function recoverAddressFromSignedMessage(bytes signature, bytes message) public pure returns (address) {
+    function recoverAddressFromSignedMessage(bytes memory signature, bytes memory message) public pure returns (address) {
         return MessageSigning.recoverAddressFromSignedMessage(signature, message);
     }
 }
@@ -176,7 +176,7 @@ contract Main is Bridge {
 
     constructor (
         uint256 requiredSignaturesParam,
-        address[] authoritiesParam
+        address[] memory authoritiesParam
     ) public {
         require(requiredSignaturesParam != 0, "Can't have zero required signatures");
         require(requiredSignaturesParam <= authoritiesParam.length, "Can't require more signatures than there're authorities");
@@ -185,7 +185,7 @@ contract Main is Bridge {
     }
 
     /// Call this function to relay this message to the side chain.
-    function relayMessage(bytes data, address recipient) external {
+    function relayMessage(bytes calldata data, address recipient) external {
         bytes32 messageID = keccak256(data);
         relayedMessages[messageID] = data;
         emit RelayMessage(messageID, msg.sender, recipient);
@@ -193,20 +193,19 @@ contract Main is Bridge {
 
     /// Function used to accept messaged relayed from side chain.
     function acceptMessage(
-        uint8[] vs,
-        bytes32[] rs,
-        bytes32[] ss,
+        uint8[] calldata vs,
+        bytes32[] calldata rs,
+        bytes32[] calldata ss,
         bytes32 transactionHash,
-        bytes data,
+        bytes calldata data,
         address sender,
         address recipient
     ) external
     {
-        bytes32 hash = keccak256(abi.encodePacked(transactionHash, keccak256(data), sender, recipient));
-        /// TODO: fix helpers ABI, cause this is redundant
-        bytes memory hashAsBytes = abi.encodePacked(hash);
+        bytes memory asBytes = abi.encodePacked(transactionHash, keccak256(data), sender, recipient);
+        bytes32 hash = keccak256(asBytes);
         require(
-            Helpers.hasEnoughValidSignatures(hashAsBytes, vs, rs, ss, authorities, requiredSignatures),
+            Helpers.hasEnoughValidSignatures(asBytes, vs, rs, ss, authorities, requiredSignatures),
             "Invalid signatures."
         );
         require(!acceptedMessages[hash], "Message already accepted.");
@@ -265,7 +264,7 @@ contract Side is Bridge {
 
     constructor (
         uint256 requiredSignaturesParam,
-        address[] authoritiesParam
+        address[] memory authoritiesParam
     ) public {
         require(requiredSignaturesParam != 0, "Can't have zero required signatures");
         require(requiredSignaturesParam <= authoritiesParam.length, "Can't require more signatures than there're authorities");
@@ -280,7 +279,7 @@ contract Side is Bridge {
     }
 
     /// Call this function to relay this message to the main chain.
-    function relayMessage(bytes data, address recipient) external {
+    function relayMessage(bytes calldata data, address recipient) external {
         bytes32 messageID = keccak256(data);
         relayedMessages[messageID] = data;
         emit RelayMessage(messageID, msg.sender, recipient);
@@ -289,7 +288,7 @@ contract Side is Bridge {
     /// Function used to accept messages relayed from main chain.
     function acceptMessage(
         bytes32 transactionHash,
-        bytes data,
+        bytes calldata data,
         address sender,
         address recipient
     ) external onlyAuthority()
@@ -319,7 +318,7 @@ contract Side is Bridge {
     /// message_id (bytes32)
     /// sender (bytes20)
     /// recipient (bytes20)
-    function submitSignedMessage(bytes signature, bytes message) public onlyAuthority() {
+    function submitSignedMessage(bytes memory signature, bytes memory message) public onlyAuthority() {
         // ensure that `signature` is really `message` signed by `msg.sender`
         require(
             msg.sender == MessageSigning.recoverAddressFromSignedMessage(signature, message),
@@ -345,7 +344,7 @@ contract Side is Bridge {
     /// Function used to check if authority has already accepted message from main chain.
     function hasAuthorityAcceptedMessageFromMain(
         bytes32 transactionHash,
-        bytes data,
+        bytes memory data,
         address sender,
         address recipient,
         address authority
@@ -356,18 +355,18 @@ contract Side is Bridge {
     }
 
     /// Function used to check if authority has already signed the message.
-    function hasAuthoritySignedMessage(address authority, bytes message) public view returns (bool) {
+    function hasAuthoritySignedMessage(address authority, bytes memory message) public view returns (bool) {
         bytes32 messageHash = keccak256(message);
         return Helpers.addressArrayContains(signatures[messageHash].authorities, authority);
     }
 
     /// Get signature
-    function signature(bytes32 messageHash, uint256 index) public view returns (bytes) {
+    function signature(bytes32 messageHash, uint256 index) public view returns (bytes memory) {
         return signatures[messageHash].signatures[index];
     }
 
     /// Get message
-    function message(bytes32 messageHash) public view returns (bytes) {
+    function message(bytes32 messageHash) public view returns (bytes memory) {
         return signatures[messageHash].message;
     }
 
@@ -390,7 +389,7 @@ contract RecipientTest is BridgeRecipient {
         _;
     }
 
-    function acceptMessage(bytes data, address sender) external customModifier() {
+    function acceptMessage(bytes calldata data, address sender) external customModifier() {
         lastData = data;
         lastSender = sender;
     }

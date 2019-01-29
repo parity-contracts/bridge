@@ -76,7 +76,7 @@ contract('Side', function(accounts) {
       assert.equal(1, result.logs.length);
       assert.equal("AcceptedMessage", result.logs[0].event);
       var packed = transactionHash + "1234" + userAccount.substr(2) + executed.address.substr(2);
-      assert.equal(web3.sha3(packed, { encoding: 'hex' }), result.logs[0].args.messageID);
+      assert.equal(web3.utils.keccak256(packed, { encoding: 'hex' }), result.logs[0].args.messageID);
       assert.equal(userAccount, result.logs[0].args.sender);
       assert.equal(executed.address, result.logs[0].args.recipient);
       return executed.lastData.call();
@@ -210,7 +210,7 @@ contract('Side', function(accounts) {
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
     var transactionHash = "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80";
-    var mainGasPrice = web3.toBigNumber(web3.toWei(3, "gwei"));
+    var mainGasPrice = web3.utils.toBN(web3.utils.toWei("3", "gwei"));
     var message = "0x1234";
     return Side.new(requiredSignatures, authorities).then(function(instance) {
       meta = instance;
@@ -249,7 +249,7 @@ contract('Side', function(accounts) {
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
     var transactionHash = "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80";
-    var mainGasPrice = web3.toBigNumber(web3.toWei(3, "gwei"));
+    var mainGasPrice = web3.utils.toBN(web3.utils.toWei("3", "gwei"));
     var message = "0x1234";
     var signature;
 
@@ -283,7 +283,7 @@ contract('Side', function(accounts) {
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
     var transactionHash = "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80";
-    var mainGasPrice = web3.toBigNumber(web3.toWei(3, "gwei"));
+    var mainGasPrice = web3.utils.toBN(web3.utils.toWei("3", "gwei"));
     var message = "0x1234";
     var message2 = "0x123456";
     return Side.new(requiredSignatures, authorities).then(function(instance) {
@@ -344,7 +344,7 @@ contract('Side', function(accounts) {
     var authorities = [accounts[0], accounts[1]];
     var recipientAccount = accounts[2];
     var transactionHash = "0x1045bfe274b88120a6b1e5d01b5ec00ab5d01098346e90e7c7a3c9b8f0181c80";
-    var mainGasPrice = web3.toBigNumber(web3.toWei(3, "gwei"));
+    var mainGasPrice = web3.utils.toBN(web3.utils.toWei("3", "gwei"));
     var message = "0x1234";
     var signature;
     return Side.new(requiredSignatures, authorities).then(function(instance) {

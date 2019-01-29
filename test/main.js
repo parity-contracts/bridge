@@ -64,7 +64,7 @@ contract('Main', function(accounts) {
     var authorities = [accounts[0], accounts[1]];
     let userAccount = accounts[2];
     let recipientAccount = accounts[3];
-    let value = web3.toWei(1, "ether");
+    let value = web3.utils.toWei("1", "ether");
 
     return newMain({
       requiredSignatures: requiredSignatures,
@@ -108,8 +108,8 @@ contract('Main', function(accounts) {
     return RecipientTest.new().then(function(result) {
       executed = result;
 
-      message = txHash + web3.sha3(data, { encoding: 'hex' }).substr(2) + sender.substr(2) + executed.address.substr(2);
-      hash = web3.sha3(message, { encoding: 'hex' });
+      message = txHash + web3.utils.keccak256(data, { encoding: 'hex' }).substr(2) + sender.substr(2) + executed.address.substr(2);
+      hash = web3.utils.keccak256(message, { encoding: 'hex' });
 
       return newMain({
         requiredSignatures: requiredSignatures,
@@ -117,7 +117,7 @@ contract('Main', function(accounts) {
       });
     }).then(function(result) {
       meta = result;
-      return helpers.sign(authorities[0], hash);
+      return helpers.sign(authorities[0], message);
     }).then(function(result) {
       var vrs = helpers.signatureToVRS(result);
 
