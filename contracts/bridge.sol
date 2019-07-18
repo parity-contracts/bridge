@@ -20,14 +20,14 @@ pragma solidity ^0.5.0;
 
 
 /// An interface of the bridge contract on both chains. Call this method to relay
-/// the message to the other chain. `recipient` is an anddress of `BridgeRecipient`
+/// the message to the other chain. `recipient` is an address of `BridgeRecipient`
 /// contract on the other chain.
 interface Bridge {
     function relayMessage(bytes calldata data, address recipient) external;
 }
 
 
-/// Interface that needs to be implemented by message receipient.
+/// Interface that needs to be implemented by message recipient.
 interface BridgeRecipient {
     function acceptMessage(bytes calldata data, address sender) external;
 }
@@ -230,7 +230,7 @@ contract Main is Bridge {
 
 /// Part of the bridge that needs to be deployed on the side chain.
 contract Side is Bridge {
-    /// Definition of the structure that holds all authorites signatures
+    /// Definition of the structure that holds all authorities signatures
     /// before relaying them to the `Main`
     struct SignaturesCollection {
         /// Signed message.
